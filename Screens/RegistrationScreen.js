@@ -113,7 +113,7 @@ const RegistrationScreen = ({ state, keyboard, isLogin }) => {
                     </Text>
                     </TouchableOpacity>
                 <TouchableOpacity style={styles.button} activeOpacity={0.7} onPress={keyboard.keyboardHide}>
-                    <Text style={styles.buttonText} >Заре</Text>
+                    <Text style={styles.buttonText} >Зарегистрироваться</Text>
                 </TouchableOpacity>
                 <View style={{ flexDirection: "row", justifyContent: "center" }}>
                     <Text style={styles.aside}>Уже есть аккаунт?  </Text>
