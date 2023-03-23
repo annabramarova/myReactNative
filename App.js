@@ -1,29 +1,19 @@
-
 import { useFonts } from 'expo-font';
-import { useEffect, useState } from 'react';
-import { TouchableWithoutFeedback, StyleSheet, Keyboard, KeyboardAvoidingView, ImageBackground, Platform } from 'react-native';
-
-import LoginScreen from './Screens/LoginScreen';
-import RegistrationScreen from './Screens/RegistrationScreen';
-
+import { useEffect} from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from "expo-splash-screen";
 
- const initialState = { 
-    name: "",
-    email: "",
-    password: "",
-    };
-  
+import { useRoute } from './router';
+
+
 export default function App() {
-
-    const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-    const [state, setState] = useState(initialState);
-    const [isLogin, setIsLogin] = useState(false);
-
-    const [fontsLoaded] = useFonts({
+  const [fontsLoaded] = useFonts({
+        RobotoBold: require("./assets/fonts/Roboto-Bold.ttf"),
         RobotoRegular: require("./assets/fonts/Roboto-Regular.ttf"),
         RobotoMedium: require("./assets/fonts/Roboto-Medium.ttf"),
     });
+  
+  const routing = useRoute(false);
   
     useEffect(() => {
         async function prepare() {
@@ -38,55 +28,9 @@ export default function App() {
         SplashScreen.hideAsync();
     }
 
-    const keyboardHide = () => {
-          setIsShowKeyboard(false);
-          Keyboard.dismiss();
-          console.log(state);
-          setState(initialState);
-    };
-    
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS == "ios" ? "padding" : "height"}
-      style={styles.container}
-                >
-      <TouchableWithoutFeedback onPress={() => {
-            Keyboard.dismiss();
-            setIsShowKeyboard(false);
-        }}>
-            <ImageBackground
-                source={require("./assets/images/background.png")}
-                style={styles.image}
-            >
-                {isLogin ? (
-              <LoginScreen
-                isLogin={{ isLogin, setIsLogin }}
-              state={{ state, setState }}
-              keyboard={{ keyboardHide, setIsShowKeyboard, isShowKeyboard }}
-                
-              />
-            ) : (
-              <RegistrationScreen
-                isLogin={{ isLogin, setIsLogin }}                
-                state={{ state, setState }}
-                keyboard={{ keyboardHide, setIsShowKeyboard, isShowKeyboard }}
-              />
-            )}
-      </ImageBackground>
-      </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+    <NavigationContainer>
+      {routing}
+     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,    
-    backgroundColor: "#fff",
-  },
-  image: {
-        flex: 1,
-        resizeMode: "cover",
-    justifyContent: "flex-end",
-    },
-});
