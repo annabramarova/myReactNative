@@ -102,7 +102,7 @@ const PostsScreen = ({ navigation, route }) => {
                           marginLeft: 6,
                         }}
                       >
-                        1
+                        0
                       </Text>
                     </TouchableOpacity>
                   </View>

@@ -34,7 +34,7 @@ const CreatePostScreen = ({navigation}) => {
             latitude: coordinates.coords.latitude,
             longitude: coordinates.coords.longitude
         };
-        
+        console.log(location);
         setState((prevState) => ({ ...prevState, location }));
     }
     const sendPhoto = () => {
