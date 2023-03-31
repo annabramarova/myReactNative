@@ -34,11 +34,11 @@ const COURSES = [
 ];
 
 const ProfileScreen = ({ navigation, route }) => {
+    const { name, location, city } = route.params;
+
     const [courses, setCourses] = useState(COURSES);
     const [dimensions, setDimensions] = useState(Dimensions.get("window").width);
   
-    const { name } = route.params;
-
     useEffect(() => {
         const onChange = () => {
             const width = Dimensions.get("window").width;

@@ -1,53 +1,174 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, View, FlatList,SafeAreaView, TouchableOpacity } from "react-native";
 
-const PostsScreen = ({ route }) => {
-    const { name, email } = route.params;
+import { Feather } from "@expo/vector-icons";
 
-    return (
-        <View style={{ flex: 1, backgroundColor: '#fff' }}>
-            <View style={styles.container}>
-                <View style={{
-                    width: 60,
-                    height: 60,
-                    backgroundColor: "#E8E8E8",
-                    marginRight: 8,
-                }}>
-                    <Image source={require('../../assets/images/user.png')} style={styles.avatar} />
+const PostsScreen = ({ navigation, route }) => {
+  const { name, email, location, title, city } = route.params;
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    if (route.params) {
+      setPosts((prevPosts) => [...prevPosts, route.params]);
+    }
+  }, [route.params]);
+  
+
+  return (
+    <View style={styles.page}>
+      <View style={styles.user}>
+      <View style={{
+        width: 60,
+          height: 60,
+          marginRight: 8
+      }}>
+        <Image source={require('../../assets/images/user.png')}
+          style={{
+            width: "100%",
+            flex: 1,
+            resizeMode: "cover",
+            borderRadius: 16,
+          }} />
+      </View>
+      <View style={{ justifyContent: 'center' }}>
+        <Text style={{
+          fontFamily: "RobotoBold",
+            fontSize: 13,
+          fontWeight: 'bold',
+          lineHeight: 15,
+          color: "#212121",
+        }}>
+          {name}
+        </Text>
+        <Text style={{
+          fontFamily: "RobotoRegular",
+          fontSize: 11,
+          lineHeight: 13,
+          color: "#212121",
+        }}>
+          {email}
+        </Text>
+        </View>
+        </View>
+      {posts && (
+        <SafeAreaView style={{paddingBottom:88}}>
+          <FlatList
+            style={styles.flat}
+            data={posts}
+            keyExtractor={(_, indx) => indx.toString()}
+            renderItem={({ item }) => (
+              <View>
+                <View style={styles.item}>
+                  <Image
+                    source={{ uri: item.photo }}
+                    style={{ height: 240, borderRadius: 8 }}
+                  />
                 </View>
-                <View style={{justifyContent:'center'}}>
-                    <Text style={{
-                        fontFamily: "RobotoBold",
-                        fontSize: 13,
-                        lineHeight: 15,
-                        color: "#212121",
-                        }}>
-                        {name}
-                    </Text>
-                    <Text style={{
+                <Text style={styles.itemText}>{item.title}</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginBottom: 34,
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginRight: 24,
+                      }}
+                      onPress={() => {
+                        navigation.navigate("Comments", {
+                          photo: item.photo,
+                        });
+                      }}
+                    >
+                      <Feather
+                        name="message-circle"
+                        size={24}
+                        color="#FF6C00"
+                      />
+                      <Text
+                        style={{
+                          fontFamily: "RobotoRegular",
+                          color: "#212121",
+                          fontSize: 16,
+                          marginLeft: 6,
+                        }}
+                      >
+                        1
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                    onPress={() => {
+                      navigation.navigate("Map", {
+                        location: item.location,
+                      });
+                    }}
+                  >
+                    <Feather name="map-pin" size={24} color="#BDBDBD" />
+                    <Text
+                      style={{
                         fontFamily: "RobotoRegular",
-                        fontSize: 11,
-                        lineHeight: 13,
                         color: "#212121",
-                        }}>
-                        {email}
+                        fontSize: 16,
+                        marginLeft: 6,
+                        textDecorationLine: "underline",
+                      }}
+                      
+                    >
+                      {item.city}
                     </Text>
+                  </TouchableOpacity>
                 </View>
-            </View>
-        </View>)
-}
+              </View>
+            )}
+          />
+        </SafeAreaView>
+      )}
+    </View>)
+};
 
 const styles = StyleSheet.create({
-  container: {
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        paddingVertical: 32,
-    },
-    avatar: {
-        width: '100%',
+  page: {
         flex: 1,
-        resizeMode: 'cover',
-        borderRadius: 16,
-    }
+        backgroundColor: '#fff',
+    paddingHorizontal: 16,
+  },
+  user: {
+        flexDirection: 'row',
+        paddingVertical: 32,
+  },
+  flat: {
+     position: "relative",
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+  },
+  item: {
+     backgroundColor: "#F6F6F6",
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  itemText: {
+    fontFamily: "RobotoMedium",
+    color: "#212121",
+    fontSize: 16,
+    marginBottom: 11,
+  }
 });
 
 

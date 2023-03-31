@@ -4,6 +4,9 @@ import LoginScreen from './Screens/Auth/LoginScreen';
 import RegistrationScreen from './Screens/Auth/RegistrationScreen';
 import Home from './Screens/Main/Home';
 
+import MapScreen from "./Screens/NestedScreens/MapScreen";
+import CommentsScreen from "./Screens/NestedScreens/CommentsScreen";
+
 const Stack = createStackNavigator();
 
 
@@ -16,6 +19,30 @@ export const useRoute = (isAuth) => {
                 options={{ headerShown: false }} />
             <Stack.Screen name='Home' component={Home}
                 options={{ headerShown: false }} />
+            <Stack.Screen
+                name='Map'
+                component={MapScreen}
+                options={{ 
+                    title: 'Карта',
+                    headerTitleAlign: "center",
+                    headerStyle: {
+                        height: 88,
+                        borderBottomWidth: 1,
+                        borderColor: "#F6F6F6",
+                    },
+                 }}/>
+            <Stack.Screen
+                name='Comments'
+                component={CommentsScreen}
+                options={{ 
+                    title: 'Комментарии',
+                    headerTitleAlign: "center",
+                    headerStyle: {
+                        height: 88,
+                        borderBottomWidth: 1,
+                        borderColor: "#F6F6F6",
+                    },
+                 }}/>
         </Stack.Navigator>
     )
 }

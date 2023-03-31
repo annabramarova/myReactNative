@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity} from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { Feather } from "@expo/vector-icons";
@@ -11,7 +11,7 @@ import ProfileScreen from "./ProfileScreen";
 const MainTab = createBottomTabNavigator();
 
 const Home = ({ navigation, route }) => {
-    const { email, name, image } = route.params;
+    const { email, name, image} = route.params;
     return (
         <MainTab.Navigator
             screenOptions={({ route }) => ({

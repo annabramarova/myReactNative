@@ -39,7 +39,6 @@ const LoginScreen = ({ navigation }) => {
     const keyboardHide = () => {
         setIsShowKeyboard(false);
         Keyboard.dismiss();
-        console.log(state);
         setIsShowPassword({ boolean: true, text: "Показать" });
         setState(initialState);
     };
