@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -10,7 +10,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
-  ImageBackground
+  ImageBackground,
+  Alert
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { authSignIn } from "../../redux/auth/authOperations";
@@ -19,7 +20,7 @@ const initialState = { email: "", password: "" };
 
 const LoginScreen = ({ navigation }) => {
     
-    const [onFocus, setOnFocus] = useState();
+    const [onFocus, setOnFocus] = useState(null);
     const [dimensions, setDimensions] = useState(
         Dimensions.get("window").width - 16 * 2
     );
@@ -36,15 +37,25 @@ const LoginScreen = ({ navigation }) => {
             setDimensions(width);
         };
         Dimensions.addEventListener("change", onChange);
+        return () => {
+            Dimensions.removeEventListener("change", onChange);
+        };
     }, []);
 
-    const handleSubmit = () => {
+     const handleSubmit = () => {
         setIsShowKeyboard(false);
         Keyboard.dismiss();
-        dispatch(authSignIn(state));
-        setIsShowPassword({ boolean: true, text: "Показать" });
+        if (!email || !password) {
+            Alert.alert("Ошибка", "Пожалуйста, введите email и пароль");
+            return;
+        }
+        dispatch(authSignIn(state)).catch(() => {
+            Alert.alert("Ошибка", "Неверный email или пароль");
+        });
+        setIsShowPassword(true);
         setState(initialState);
     };
+
 
     return (
         <KeyboardAvoidingView
@@ -88,7 +99,7 @@ const LoginScreen = ({ navigation }) => {
                                                 borderColor: "#ff6c00",
                                                 backgroundColor: "#fff",
                                             }}
-                                    onBlur={() => setOnFocus(false)}
+                                    onBlur={() => setOnFocus(null)}
                                 />
                             </View>
                             <View style={{ position: "relative" }}>

@@ -1,13 +1,12 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity, TextInput, Keyboard} from "react-native";
+import { Image, StyleSheet, Text, View, TouchableOpacity, TextInput, Keyboard, SafeAreaView, FlatList} from "react-native";
 
 import { Feather } from "@expo/vector-icons"; 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { collection } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
-import { useEffect } from "react";
 
-const CommentsScreen = ({ navigation, route }) => {
+const CommentsScreen = ({ route }) => {
   const { photo, postId } = route.params;
 
   const [comment, setComment] = useState("");
@@ -16,9 +15,10 @@ const CommentsScreen = ({ navigation, route }) => {
   const { name } = useSelector((state) => state.auth);
 
   const onSubmit = async () => {
-    const docRef = await addDoc(collection(db, `posts/${postId}`, 'comments'), {
+    await addDoc(collection(db, `posts/${postId}`, 'comments'), {
       comment,
       name,
+      createdAt: new Date(),
     });
     Keyboard.dismiss();
     setComment("");
@@ -33,16 +33,31 @@ const CommentsScreen = ({ navigation, route }) => {
     );
   };
 
+  const months = [
+  'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+  'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+];
+
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${day} ${month}, ${year} | ${hours}:${minutes}`;
+}
+
   useEffect(() => {
     getAllPosts();
   }, []);
-  
-    return (
-      <View style={styles.container}>
-        <View>
-          <Image source={{ uri: photo }} style={{height: 240, borderRadius: 8}} />
-        </View>
-        <SafeAreaView style={{flex: 1, marginTop: 32}}>
+
+  return (
+    <View style={styles.container}>
+      <View>
+        <Image source={{ uri: photo }} style={{ height: 240, borderRadius: 8 }} />
+      </View>
+      <SafeAreaView style={{ flex: 1, marginTop: 32 }}>
         <FlatList
           data={allComments}
           keyExtractor={(item) => item.id}
@@ -51,8 +66,10 @@ const CommentsScreen = ({ navigation, route }) => {
             return (
               <View
                 style={{
+                  flex: 1,
                   marginBottom: 24,
                   flexDirection: isEven ? "row" : "row-reverse",
+                  alignItems: 'center'
                 }}
               >
                 <View>
@@ -67,6 +84,11 @@ const CommentsScreen = ({ navigation, route }) => {
                   }}
                 >
                   <Text style={styles.comment}>{item.comment}</Text>
+                  {item.createdAt && (
+                    <Text style={{textAlign: isEven ? "right" : 'left', ...styles.timestamp}}>
+                      {formatDate(item.createdAt.seconds)}
+                    </Text>
+                  )}
                 </View>
               </View>
             );
@@ -92,8 +114,8 @@ const CommentsScreen = ({ navigation, route }) => {
           <Feather name="arrow-up" size={20} color="#fff" />
         </View>
       </TouchableOpacity>
-        </View>)
-}
+    </View>)
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -132,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF6C00",
   },
   comment: {
-    fontFamily: "Roboto-Regular",
+    fontFamily: "RobotoRegular",
     color: "#212121",
     fontSize: 13,
   },
@@ -143,6 +165,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 6,
     borderBottomLeftRadius: 6,
     borderBottomRightRadius: 6,
+  },
+  timestamp: {
+    fontFamily: "RobotoRegular",
+    fontSize: 10,
+    lineHeight: 12,    
+    color: '#BDBDBD',
   }
 });
 

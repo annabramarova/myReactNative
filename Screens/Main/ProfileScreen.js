@@ -50,7 +50,7 @@ const ProfileScreen = ({ navigation }) => {
                 source={require("../../assets/images/background.png")}
                 style={styles.image}
             >
-                <SafeAreaView style={{ ...styles.content, width: dimensions }}>
+                <SafeAreaView style={{ ...styles.content, width: dimensions}}>
                     <View style={styles.header}>
                         <Text style={styles.headerText}>{name}</Text>
                     </View>
@@ -79,7 +79,7 @@ const ProfileScreen = ({ navigation }) => {
                                     }}>
                                         <TouchableOpacity
                                             onPress={() =>
-                                                navigation.navigate("Комментарии", { postId: item.id })}
+                                                navigation.navigate("Comments", { postId: item.id })}
                                             style={{
                                                 flexDirection: "row",
                                                 alignItems: "center",
@@ -205,6 +205,7 @@ const styles = StyleSheet.create({
     },
     header: {
         alignItems: 'center',
+        marginBottom: 32 
     },
     headerText: {
         fontFamily: "RobotoMedium",
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     itemText: {
-        fontFamily: "Roboto-Medium",
+        fontFamily: "RobotoMedium",
         color: "#212121",
         fontSize: 16,
         marginBottom: 11,

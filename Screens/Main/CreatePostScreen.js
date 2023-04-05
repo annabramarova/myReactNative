@@ -18,10 +18,14 @@ import { nanoid } from 'nanoid';
 
 
 const CreatePostScreen = ({ navigation }) => {
-    const [photo, setPhoto] = useState(null);
+    const [photo, setPhoto] = useState('');
     const [cameraRef, setCameraRef] = useState(null);
     const [hasPermission, setHasPermission] = useState(null);
-    const [state, setState] = useState([]);
+    const [state, setState] = useState({
+        title: '',
+        location: null,
+        city: ''
+    });
     
     const { title, location, city } = state;
 
@@ -45,19 +49,31 @@ const CreatePostScreen = ({ navigation }) => {
             latitude: coordinates.coords.latitude,
             longitude: coordinates.coords.longitude
         };
-        setState((prevState) => ({ ...prevState, location }));
+        setState((prevState) => ({ ...prevState, location: location }));
     };
 
     const sendPhoto = () => {
+        if (!title || !city) {
+            alert('Please, create title and add location to your photo');
+            return;
+        }
         uploadPostToServer();
-        setState([]);
+        setState({
+            title: '',
+            location: null,
+            city: ''
+        });
         navigation.navigate('Публикации');
     };
 
     const clearPhoto = () => {
+        setState({
+            title: '',
+            location: null,
+            city: ''
+        });
         setCameraRef(null);
         setPhoto(null);
-        setState([]);
     };
     
     const uploadPostToServer = async () => {
@@ -90,6 +106,7 @@ const CreatePostScreen = ({ navigation }) => {
         )
         return processedPhoto;
     };
+    
     
     return (
         <View style={styles.container}>
