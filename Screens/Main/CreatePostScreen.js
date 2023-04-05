@@ -17,20 +17,20 @@ import { collection, addDoc } from "firebase/firestore";
 import { nanoid } from 'nanoid';
 
 
-const CreatePostScreen = ({navigation}) => {
-    const [photo, setPhoto] = useState(null);    
+const CreatePostScreen = ({ navigation }) => {
+    const [photo, setPhoto] = useState(null);
     const [cameraRef, setCameraRef] = useState(null);
     const [hasPermission, setHasPermission] = useState(null);
     const [state, setState] = useState([]);
     
-    const { title, city, location } = state;
+    const { title, location, city } = state;
 
     const { userId, name } = useSelector((state) => state.auth);
 
     useEffect(() => {
         (async () => {
-        const { status } = await Camera.requestCameraPermissionsAsync();
-        await MediaLibrary.requestPermissionsAsync();
+            const { status } = await Camera.requestCameraPermissionsAsync();
+            await MediaLibrary.requestPermissionsAsync();
             let { locationStatus } = await Location.requestForegroundPermissionsAsync();
             setHasPermission(locationStatus === "granted");
             setHasPermission(status === "granted");
@@ -61,15 +61,19 @@ const CreatePostScreen = ({navigation}) => {
     };
     
     const uploadPostToServer = async () => {
-        const photo = await uploadPhoto();
-        const createPost = await addDoc(collection(db, 'posts'), {
-            city,
-            photo,
-            location,
-            title,
-            userId,
-            name
-        });
+        try {
+            const photo = await uploadPhoto();
+            await addDoc(collection(db, 'posts'), {
+                photo,
+                location,
+                title,
+                userId,
+                name,
+                city
+            });
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const uploadPhoto = async () => {
@@ -90,56 +94,70 @@ const CreatePostScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <Camera style={styles.camera} ref={setCameraRef}>
-            {photo && (
-            <View style={{
+                {photo && (
+                    <View style={{
                         position: 'absolute',
                         width: '100%',
                         height: '100%',
                         right: 0,
                         backgroundColor: "#fff",
-                        }}>
-                        <Image source={{ uri: photo }} style={{ width: '100%', height: '100%'}} />
-                        </View>
-                            )}
+                    }}>
+                        <Image source={{ uri: photo }} style={{ width: '100%', height: '100%' }} />
+                    </View>
+                )}
             
-            <TouchableOpacity style={styles.box} onPress={takePhoto}>
-            <FontAwesome name='camera' size={20} color={'#BDBDBD'} />
+                <TouchableOpacity style={styles.box} onPress={takePhoto}>
+                    <FontAwesome name='camera' size={20} color={'#BDBDBD'} />
                 </TouchableOpacity>
             </Camera>
              
-                <View style={{marginBottom: 32}}>
+            <View style={{ marginBottom: 32 }}>
                 <Text style={styles.text}>Загрузите фото</Text>
                 {photo && (<TouchableOpacity
-                style={{
-                    position: 'absolute',
-                    right: 0,
-                    top: 0,
-                    height: 30,
-                    width: 30,
-                }} onPress={clearPhoto}>
-            <AntDesign name="delete" size={24} color="#BDBDBD" />
-            </TouchableOpacity>)} 
+                    style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: 0,
+                        height: 30,
+                        width: 30,
+                    }} onPress={clearPhoto}>
+                    <AntDesign name="delete" size={24} color="#BDBDBD" />
+                </TouchableOpacity>)}
             </View>
             
-                <View style={{marginBottom: 16}}>
+            <View style={{ marginBottom: 16 }}>
                 <TextInput placeholder="Название..." style={styles.input}
                     value={title}
                     onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, title: value }))
+                        setState((prevState) => ({ ...prevState, title: value }))
                     }
                     placeholderTextColor="#BDBDBD"
-                    />
-                </View>
-                <View style={{position: 'relative', marginBottom: 32}}>
+                />
+            </View>
+            <View style={{ position: 'relative', marginBottom: 32 }}>
                 <TextInput placeholder="Местность..."
                     style={{ ...styles.input, paddingLeft: 28 }}
                     value={city}
                     onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, city: value }))
+                        setState((prevState) => ({ ...prevState, city: value }))
                     }
                     placeholderTextColor="#BDBDBD"
-                    />
-                <View
+                />
+                {photo ? (<TouchableOpacity
+                    onPress={() =>
+                        navigation.navigate("Map", { location })
+                    }
+                    style={{
+                        color: "#1B4371",
+                        position: "absolute",
+                        left: 0,
+                        top: 12,
+                    }}
+                >
+                    <Feather name="map-pin" size={24} color="#BDBDBD" />
+                </TouchableOpacity>)
+                    : (
+                        <View
                     style={{
                         color: "#1B4371",
                         position: "absolute",
@@ -149,14 +167,16 @@ const CreatePostScreen = ({navigation}) => {
                 >
                     <Feather name="map-pin" size={24} color="#BDBDBD" />
                 </View>
-                </View>
-                <TouchableOpacity
+                    )
+                }
+            </View>
+            <TouchableOpacity
                 style={{ ...styles.btn, backgroundColor: photo ? "#ff6c00" : "#F6F6F6" }}
                 activeOpacity={0.7}
                 onPress={sendPhoto}>
-                    <Text style={{...styles.btnText, color: photo? "#fff" : "#BDBDBD"}}>Опубликовать</Text>
-                </TouchableOpacity>
-            </View>)
+                <Text style={{ ...styles.btnText, color: photo ? "#fff" : "#BDBDBD" }}>Опубликовать</Text>
+            </TouchableOpacity>
+        </View>)
 }
 
 const styles = StyleSheet.create({
