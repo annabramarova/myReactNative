@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -13,9 +13,11 @@ import {
   KeyboardAvoidingView,
   ImageBackground,
 } from "react-native";
+import { useDispatch } from "react-redux";
+
+import { authSignUpUser } from "../../redux/auth/authOperations";
 
 const initialState = {
-  image: "../../assets/images/user.png",
   name: "",
   email: "",
   password: "",
@@ -30,7 +32,9 @@ const RegistrationScreen = ({ navigation }) => {
     const [state, setState] = useState(initialState);
     const [isShowPassword, setIsShowPassword] = useState(true);
 
-    const { image, name, email, password } = state;
+    const { name, email, password } = state;
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const onChange = () => {
@@ -40,10 +44,10 @@ const RegistrationScreen = ({ navigation }) => {
         Dimensions.addEventListener("change", onChange);
     }, []);
     
-    const keyboardHide = () => {
+    const handleSubmit = () => {
         setIsShowKeyboard(false);
         Keyboard.dismiss();
-        console.log(state);
+        dispatch(authSignUpUser(state));
         setIsShowPassword({ boolean: true, text: "Показать" });
         setState(initialState);
     };
@@ -153,10 +157,7 @@ const RegistrationScreen = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.button}
                                 activeOpacity={0.7}
-                                onPress={() => {
-                                    navigation.navigate('Home', {email, name, image})                                   
-                                    keyboardHide;
-                                }}>
+                                onPress={handleSubmit}>
                                 <Text style={styles.buttonText} >Зарегистрироваться</Text>
                             </TouchableOpacity>
                             <View style={{ flexDirection: "row", justifyContent: "center" }}>

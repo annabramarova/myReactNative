@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -12,6 +12,8 @@ import {
   KeyboardAvoidingView,
   ImageBackground
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignIn } from "../../redux/auth/authOperations";
 
 const initialState = { email: "", password: "" };
 
@@ -25,7 +27,7 @@ const LoginScreen = ({ navigation }) => {
     const [state, setState] = useState(initialState);
     const [isShowPassword, setIsShowPassword] = useState(true);
 
-
+    const dispatch = useDispatch();
     const { email, password } = state;
     
     useEffect(() => {
@@ -36,9 +38,10 @@ const LoginScreen = ({ navigation }) => {
         Dimensions.addEventListener("change", onChange);
     }, []);
 
-    const keyboardHide = () => {
+    const handleSubmit = () => {
         setIsShowKeyboard(false);
         Keyboard.dismiss();
+        dispatch(authSignIn(state));
         setIsShowPassword({ boolean: true, text: "Показать" });
         setState(initialState);
     };
@@ -125,10 +128,7 @@ const LoginScreen = ({ navigation }) => {
                             <TouchableOpacity
                                 style={styles.button}
                                 activeOpacity={0.7}
-                                onPress={() => {
-                                    navigation.navigate('Home', {email});
-                                    keyboardHide;
-                                }}>
+                                onPress={handleSubmit}>
                                 <Text style={styles.buttonText} >Войти</Text>
                             </TouchableOpacity>
                             <View style={{ flexDirection: "row", justifyContent: "center" }}>

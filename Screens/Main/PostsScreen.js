@@ -3,15 +3,23 @@ import { Image, StyleSheet, Text, View, FlatList,SafeAreaView, TouchableOpacity 
 
 import { Feather } from "@expo/vector-icons";
 
-const PostsScreen = ({ navigation, route }) => {
-  const { name, email, location, title, city } = route.params;
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { useSelector } from "react-redux";
+
+const PostsScreen = ({ navigation}) => {
   const [posts, setPosts] = useState([]);
 
+  const { userId, name, email } = useSelector((state) => state.auth);
+
+  const getPosts = async () => {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    setPosts(querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  };
+  
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevPosts) => [...prevPosts, route.params]);
-    }
-  }, [route.params]);
+    getPosts();
+  }, []);
   
 
   return (
@@ -86,6 +94,7 @@ const PostsScreen = ({ navigation, route }) => {
                       onPress={() => {
                         navigation.navigate("Comments", {
                           photo: item.photo,
+                          postId: item.id,
                         });
                       }}
                     >

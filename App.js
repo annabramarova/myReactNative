@@ -1,10 +1,10 @@
 import { useFonts } from 'expo-font';
 import { useEffect} from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from "expo-splash-screen";
+import { Provider } from 'react-redux';
 
-import { useRoute } from './router';
-
+import {store} from './redux/store'
+import Main from './components/Main';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -13,7 +13,6 @@ export default function App() {
         RobotoMedium: require("./assets/fonts/Roboto-Medium.ttf"),
     });
   
-  const routing = useRoute(false);
   
     useEffect(() => {
         async function prepare() {
@@ -29,8 +28,8 @@ export default function App() {
     }
 
   return (
-    <NavigationContainer>
-      {routing}
-     </NavigationContainer>
+    <Provider store={store}>
+      <Main />
+    </Provider>
   );
 }

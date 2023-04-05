@@ -1,4 +1,7 @@
 import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
@@ -6,7 +9,13 @@ import * as Location from "expo-location";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { db, storage } from "../../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
+
+import { nanoid } from 'nanoid';
+
 
 const CreatePostScreen = ({navigation}) => {
     const [photo, setPhoto] = useState(null);    
@@ -15,6 +24,8 @@ const CreatePostScreen = ({navigation}) => {
     const [state, setState] = useState([]);
     
     const { title, city, location } = state;
+
+    const { userId, name } = useSelector((state) => state.auth);
 
     useEffect(() => {
         (async () => {
@@ -29,24 +40,52 @@ const CreatePostScreen = ({navigation}) => {
     const takePhoto = async () => {
         const { uri } = await cameraRef.takePictureAsync();
         setPhoto(uri);
-        const coordinates = await Location.getCurrentPositionAsync({});
+        const coordinates = await Location.getCurrentPositionAsync();
         const location = {
             latitude: coordinates.coords.latitude,
             longitude: coordinates.coords.longitude
         };
-        console.log(location);
         setState((prevState) => ({ ...prevState, location }));
-    }
-    const sendPhoto = () => {
-        setState([]),
-        navigation.navigate('Публикации', {photo, title, city, location})
-    }
+    };
 
+    const sendPhoto = () => {
+        uploadPostToServer();
+        setState([]);
+        navigation.navigate('Публикации');
+    };
 
     const clearPhoto = () => {
+        setCameraRef(null);
         setPhoto(null);
+        setState([]);
     };
     
+    const uploadPostToServer = async () => {
+        const photo = await uploadPhoto();
+        const createPost = await addDoc(collection(db, 'posts'), {
+            city,
+            photo,
+            location,
+            title,
+            userId,
+            name
+        });
+    };
+
+    const uploadPhoto = async () => {
+        const result = await fetch(photo);
+        const file = await result.blob();
+
+        const uniquePostId = nanoid();
+
+        const imagesRef = ref(storage, `postImage/${uniquePostId}`);
+        await uploadBytes(imagesRef, file);
+
+        const processedPhoto = await getDownloadURL(
+            ref(storage, `postImage/${uniquePostId}`)
+        )
+        return processedPhoto;
+    };
     
     return (
         <View style={styles.container}>
