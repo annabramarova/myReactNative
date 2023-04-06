@@ -6,6 +6,7 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyDKf7brJORS-4Y7rPhCIi3_lVa4NcoDNvI",
   authDomain: "react-native-annabramarova.firebaseapp.com",
+  databaseURL: "https://react-native-annabramarova-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "react-native-annabramarova",
   storageBucket: "react-native-annabramarova.appspot.com",
   messagingSenderId: "161753605826",

@@ -13,7 +13,7 @@ export const authSignUpUser = ({name, email, password}) => async (dispatch) => {
   try {
     await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(auth.currentUser, {
-      displayName: name
+      displayName: name,
     });
 
     const { displayName, uid } = auth.currentUser;
@@ -21,27 +21,20 @@ export const authSignUpUser = ({name, email, password}) => async (dispatch) => {
     dispatch(
       authSlice.actions.updateUserProfile({
         userId: uid,
-        name: displayName
+        name: displayName,
       })
     );
   } catch (error) {
     console.log("error.message", error.message);
   }
 }
-
-export const authSignIn = ({ email, password }) => async (dispatch) => {
+export const authSignIn = ({email, password}) => async () => {
   try {
-    const response = await auth.signInWithEmailAndPassword(email, password);
-    const { user } = response;
-    dispatch(authActions.signInSuccess(user));
+    await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    dispatch(authActions.signInFailure(error.message));
-    // Display an alert message to the user
-    alert("Error signing in: " + error.message);
-    console.log("Error message:", error.message);
+    console.log("error.message", error.message);
   }
-};
-
+}
 export const authSignOut = () => async (dispatch) => {
   await signOut(auth);
   dispatch(authSlice.actions.authSignOut());
@@ -56,7 +49,6 @@ export const authStateChangeUser = () =>
           authSlice.actions.updateUserProfile({
             userId: user.uid,
             name: user.displayName,
-            email: user.email
           })
         );
 

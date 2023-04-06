@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, View, TextInput, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
+import { FileSystem } from 'expo';
 import { Camera } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
@@ -18,14 +18,10 @@ import { nanoid } from 'nanoid';
 
 
 const CreatePostScreen = ({ navigation }) => {
-    const [photo, setPhoto] = useState('');
+    const [photo, setPhoto] = useState(null);
     const [cameraRef, setCameraRef] = useState(null);
     const [hasPermission, setHasPermission] = useState(null);
-    const [state, setState] = useState({
-        title: '',
-        location: null,
-        city: ''
-    });
+    const [state, setState] = useState([]);
     
     const { title, location, city } = state;
 
@@ -50,30 +46,19 @@ const CreatePostScreen = ({ navigation }) => {
             longitude: coordinates.coords.longitude
         };
         setState((prevState) => ({ ...prevState, location: location }));
+        console.log(location)
     };
 
     const sendPhoto = () => {
-        if (!title || !city) {
-            alert('Please, create title and add location to your photo');
-            return;
-        }
         uploadPostToServer();
-        setState({
-            title: '',
-            location: null,
-            city: ''
-        });
+        setState([]);
         navigation.navigate('Публикации');
     };
 
     const clearPhoto = () => {
-        setState({
-            title: '',
-            location: null,
-            city: ''
-        });
         setCameraRef(null);
         setPhoto(null);
+        setState([]);
     };
     
     const uploadPostToServer = async () => {
@@ -106,7 +91,6 @@ const CreatePostScreen = ({ navigation }) => {
         )
         return processedPhoto;
     };
-    
     
     return (
         <View style={styles.container}>
