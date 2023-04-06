@@ -49,6 +49,7 @@ export const authStateChangeUser = () =>
           authSlice.actions.updateUserProfile({
             userId: user.uid,
             name: user.displayName,
+            email: user.email
           })
         );
 
