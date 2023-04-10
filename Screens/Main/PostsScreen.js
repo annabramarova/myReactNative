@@ -3,7 +3,7 @@ import { Image, StyleSheet, Text, View, FlatList,SafeAreaView, TouchableOpacity 
 
 import { Feather } from "@expo/vector-icons";
 
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useSelector } from "react-redux";
 
@@ -13,13 +13,18 @@ const PostsScreen = ({ navigation}) => {
   const { userId, name, email } = useSelector((state) => state.auth);
 
   const getPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    setPosts(querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      await onSnapshot(collection(db, "posts"), (querySnapshot) => {
+        const updatedPosts = querySnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+        setPosts(updatedPosts);
+      })
   };
-  
-  useEffect(() => {
-    getPosts();
-  }, []);
+
+useEffect(() => {
+  getPosts();
+}, []);
   
 
   return (

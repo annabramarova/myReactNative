@@ -1,9 +1,20 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity, TextInput, Keyboard, SafeAreaView, FlatList} from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Keyboard,
+  SafeAreaView,
+  FlatList
+} from "react-native";
 
 import { Feather } from "@expo/vector-icons"; 
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
 const CommentsScreen = ({ route }) => {
@@ -11,26 +22,29 @@ const CommentsScreen = ({ route }) => {
 
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { name } = useSelector((state) => state.auth);
 
   const onSubmit = async () => {
+    if (!comment) return;
+    setIsLoading(true);
     await addDoc(collection(db, `posts/${postId}`, 'comments'), {
       comment,
       name,
       createdAt: new Date(),
     });
+    setIsLoading(false);
     Keyboard.dismiss();
     setComment("");
   };
-
-  const getAllPosts = async () => {
-    querySnapshot = await getDocs(
-      collection(db, `posts/${postId}/comments`)
-    );
-    setAllComments(
-      querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-    );
+ const getAllComments = async() => {
+    setIsLoading(true);
+    const querySnapshot = await onSnapshot(collection(db, `posts/${postId}/comments`), (snapshot) => {
+      setAllComments(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      setIsLoading(false);
+    });
+    return querySnapshot;
   };
 
   const months = [
@@ -49,51 +63,58 @@ const formatDate = (timestamp) => {
 }
 
   useEffect(() => {
-    getAllPosts();
+    getAllComments();
   }, []);
 
+  
   return (
     <View style={styles.container}>
       <View>
         <Image source={{ uri: photo }} style={{ height: 240, borderRadius: 8 }} />
       </View>
       <SafeAreaView style={{ flex: 1, marginTop: 32 }}>
-        <FlatList
-          data={allComments}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => {
-            let isEven = index % 2 === 0;
-            return (
-              <View
-                style={{
-                  flex: 1,
-                  marginBottom: 24,
-                  flexDirection: isEven ? "row" : "row-reverse",
-                  alignItems: 'center'
-                }}
-              >
-                <View>
-                  <Text>{item.name}</Text>
-                </View>
+        {isLoading ? (
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        ) : (
+          <FlatList
+            data={allComments}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item, index }) => {
+              let isEven = index % 2 === 0;
+              return (
                 <View
                   style={{
                     flex: 1,
-                    marginLeft: isEven ? 16 : 0,
-                    marginRight: isEven ? 0 : 16,
-                    ...styles.commentWrap,
+                    marginBottom: 24,
+                    flexDirection: isEven ? "row" : "row-reverse",
+                    alignItems: 'center'
                   }}
                 >
-                  <Text style={styles.comment}>{item.comment}</Text>
-                  {item.createdAt && (
-                    <Text style={{textAlign: isEven ? "right" : 'left', ...styles.timestamp}}>
-                      {formatDate(item.createdAt.seconds)}
-                    </Text>
-                  )}
+                  <View>
+                    <Text>{item.name}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      marginLeft: isEven ? 16 : 0,
+                      marginRight: isEven ? 0 : 16,
+                      ...styles.commentWrap,
+                    }}
+                  >
+                    <Text style={styles.comment}>{item.comment}</Text>
+                    {item.createdAt && (
+                      <Text style={{textAlign: isEven ? "right" : 'left', ...styles.timestamp}}>
+                        {formatDate(item.createdAt.seconds)}
+                      </Text>
+                    )}
+                  </View>
                 </View>
-              </View>
-            );
-          }}
-        />
+              );
+            }}
+          />
+        )}
       </SafeAreaView>
       <TouchableOpacity
         activeOpacity={0.7}
@@ -114,7 +135,8 @@ const formatDate = (timestamp) => {
           <Feather name="arrow-up" size={20} color="#fff" />
         </View>
       </TouchableOpacity>
-    </View>)
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
